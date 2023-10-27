@@ -71,7 +71,7 @@ async def process_request(input_data: ProcessRequest) -> ProcessResponse:
         prompt = prompt[:-1]+':'
     elif prompt[-2]=='.': 
         prompt = prompt[:-2]+':'+prompt[-1]
-    print(profix+prompt)
+    # print(profix+prompt)
     encoded = tokenizer(profix+prompt, return_tensors="pt").to("cuda:0")
 
     prompt_length = encoded["input_ids"][0].size(0)
