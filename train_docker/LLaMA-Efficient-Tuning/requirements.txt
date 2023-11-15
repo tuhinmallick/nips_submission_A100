@@ -30,3 +30,5 @@ huggingface_hub
 py7zr
 optimum
 einops
+packaging
+ninja 
