@@ -13,3 +13,5 @@
 | bigbench| 1600              | tasksource/bigbench                               | train            |
 
 This table provides a clear overview of the datasets with their respective numbers of entries, sources, and the part of the dataset they belong to.
+
+Finally, we used the code in 'data_combine.ipynb' to combine all the data together to obtain the final dataset.
