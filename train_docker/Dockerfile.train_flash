@@ -11,9 +11,9 @@ RUN pip install -r requirements.txt
 
 # flash attention
 WORKDIR /workspace
-RUN git clone https://github.com/Dao-AILab/flash-attention.git && cd flash-attention
-RUN python setup.py install
-RUN cd csrc/layer_norm && pip install .
+RUN git clone https://github.com/Dao-AILab/flash-attention.git
+RUN cd flash-attention && python setup.py install
+RUN cd flash-attention/csrc/layer_norm && pip install .
 
 
 WORKDIR /workspace/LLaMA-Efficient-Tuning
