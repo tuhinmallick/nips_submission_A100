@@ -62,6 +62,12 @@ docker build -t trainer:flash -f Dockerfile.train_flash .
 # run
 docker run -it -p 127.0.0.1:8111:80 --name trainer_flash trainer:flash /bin/bash
 
+# Docker run.
+# if CMD failed
+cd LLaMA-Efficient-Tuning
+bash nips_finetune_flash.sh
+
+
 ```
 After completing these steps, the weights will be stored in 'final_v3_test' within the Docker environment. They will also be uploaded to https://huggingface.co/xxyyy123. The specific project will be named 'final_submit_v3_xxxxx'.
 
@@ -77,5 +83,10 @@ docker build -t trainer:context -f Dockerfile.train_context .
 
 # run
 docker run -it -p 127.0.0.1:8111:80 --name trainer_context trainer:context /bin/bash
+
+# Docker run.
+# if CMD failed
+cd LLaMA-Efficient-Tuning
+bash nips_finetune_context2048.sh
 
 ```
