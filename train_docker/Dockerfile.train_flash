@@ -17,5 +17,6 @@ RUN cd flash-attention/csrc/layer_norm && pip install .
 
 
 WORKDIR /workspace/LLaMA-Efficient-Tuning
-# RUN bash nips_finetune_llama2_ds_13b.sh
-RUN bash nips_finetune_flash.sh
+
+# RUN bash nips_finetune_flash.sh
+CMD ["bash", "nips_finetune_flash.sh"]
