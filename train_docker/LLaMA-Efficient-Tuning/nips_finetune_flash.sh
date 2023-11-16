@@ -2,7 +2,7 @@ model_name_or_path='Qwen/Qwen-14B'
 sft_checkpoint='../final_v3_test'
 dataset='1025_dolly8k_cnn4kD_bbq8ks_mmlu19kRAW_sci6k_alpaca_plus'
 
-CUDA_VISIBLE_DEVICES=0 python src/train_bash.py \
+python src/train_bash.py \
     --flash_attn \
     --gradient_checkpointing True \
     --stage sft \
