@@ -32,7 +32,7 @@ login(token=os.environ["HUGGINGFACE_TOKEN"])
 
 
 base_model_name ="Qwen/Qwen-14B"
-adapter_name_or_path ="xxyyy123/final_1025_dolly8k_cnn4kD_bbq8ks_mmlu19kRAW_sci6k_alpaca_plus_flash_loraC_r3_bynf"
+adapter_name_or_path ="xxyyy123/final_submit_v3_1700124777"
 
 model = AutoModelForCausalLM.from_pretrained(
   base_model_name,
