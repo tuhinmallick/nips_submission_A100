@@ -22,7 +22,7 @@ def get_dataset(
     all_datasets: List[Union["Dataset", "IterableDataset"]] = [] # support multiple datasets
 
     for dataset_attr in data_args.dataset_list:
-        logger.info("Loading dataset {}...".format(dataset_attr))
+        logger.info(f"Loading dataset {dataset_attr}...")
 
         if dataset_attr.load_from == "hf_hub":
             data_path = dataset_attr.dataset_name
@@ -69,7 +69,7 @@ def get_dataset(
             if getattr(dataset_attr, column_name) and getattr(dataset_attr, column_name) != column_name:
                 dataset = dataset.rename_column(getattr(dataset_attr, column_name), column_name)
 
-        if dataset_attr.system_prompt: # add system prompt
+        if dataset_attr.system_prompt:
             if data_args.streaming:
                 dataset = dataset.map(lambda _: {"system": dataset_attr.system_prompt})
             else:

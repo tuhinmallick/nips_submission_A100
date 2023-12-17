@@ -43,7 +43,7 @@ class Runner:
         if not get_model_path(model_name):
             return ALERTS["err_no_path"][lang]
 
-        if len(dataset) == 0:
+        if not dataset:
             return ALERTS["err_no_dataset"][lang]
 
         self.aborted = False
@@ -56,10 +56,7 @@ class Runner:
     ) -> str:
         self.running = False
         torch_gc()
-        if self.aborted:
-            return ALERTS["info_aborted"][lang]
-        else:
-            return finish_info
+        return ALERTS["info_aborted"][lang] if self.aborted else finish_info
 
     def _parse_train_args(
         self,
@@ -116,7 +113,9 @@ class Runner:
             cache_dir=cache_dir,
             checkpoint_dir=checkpoint_dir,
             finetuning_type=finetuning_type,
-            quantization_bit=int(quantization_bit) if quantization_bit in ["8", "4"] else None,
+            quantization_bit=int(quantization_bit)
+            if quantization_bit in {"8", "4"}
+            else None,
             template=template,
             system_prompt=system_prompt,
             dataset_dir=dataset_dir,
@@ -136,11 +135,14 @@ class Runner:
             rope_scaling="linear" if rope_scaling else None,
             lora_rank=lora_rank,
             lora_dropout=lora_dropout,
-            lora_target=lora_target or DEFAULT_MODULE.get(model_name.split("-")[0], "q_proj,v_proj"),
+            lora_target=lora_target
+            or DEFAULT_MODULE.get(model_name.split("-")[0], "q_proj,v_proj"),
             resume_lora_training=(
-                False if TRAINING_STAGES[training_stage] in ["rm", "ppo", "dpo"] else resume_lora_training
+                False
+                if TRAINING_STAGES[training_stage] in ["rm", "ppo", "dpo"]
+                else resume_lora_training
             ),
-            output_dir=output_dir
+            output_dir=output_dir,
         )
         args[compute_type] = True
 
@@ -199,7 +201,9 @@ class Runner:
             cache_dir=cache_dir,
             checkpoint_dir=checkpoint_dir,
             finetuning_type=finetuning_type,
-            quantization_bit=int(quantization_bit) if quantization_bit in ["8", "4"] else None,
+            quantization_bit=int(quantization_bit)
+            if quantization_bit in {"8", "4"}
+            else None,
             template=template,
             system_prompt=system_prompt,
             dataset_dir=dataset_dir,
@@ -210,7 +214,7 @@ class Runner:
             max_new_tokens=max_new_tokens,
             top_p=top_p,
             temperature=temperature,
-            output_dir=output_dir
+            output_dir=output_dir,
         )
 
         if predict:
@@ -221,24 +225,21 @@ class Runner:
 
     def preview_train(self, *args) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         lang, model_name, dataset, _, args = self._parse_train_args(*args)
-        error = self._initialize(lang, model_name, dataset)
-        if error:
+        if error := self._initialize(lang, model_name, dataset):
             yield error, gr.update(visible=False)
         else:
             yield gen_cmd(args), gr.update(visible=False)
 
     def preview_eval(self, *args) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         lang, model_name, dataset, _, args = self._parse_eval_args(*args)
-        error = self._initialize(lang, model_name, dataset)
-        if error:
+        if error := self._initialize(lang, model_name, dataset):
             yield error, gr.update(visible=False)
         else:
             yield gen_cmd(args), gr.update(visible=False)
 
     def run_train(self, *args) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         lang, model_name, dataset, output_dir, args = self._parse_train_args(*args)
-        error = self._initialize(lang, model_name, dataset)
-        if error:
+        if error := self._initialize(lang, model_name, dataset):
             yield error, gr.update(visible=False)
             return
 
@@ -263,8 +264,7 @@ class Runner:
 
     def run_eval(self, *args) -> Generator[str, None, None]:
         lang, model_name, dataset, output_dir, args = self._parse_eval_args(*args)
-        error = self._initialize(lang, model_name, dataset)
-        if error:
+        if error := self._initialize(lang, model_name, dataset):
             yield error, gr.update(visible=False)
             return
 

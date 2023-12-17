@@ -20,11 +20,7 @@ class Manager:
 
         user_config = load_config()
         if not lang:
-            if user_config.get("lang", None):
-                lang = user_config["lang"]
-            else:
-                lang = "en"
-
+            lang = user_config["lang"] if user_config.get("lang", None) else "en"
         refresh_dict["lang"] = {"value": lang}
 
         if user_config.get("last_model", None):

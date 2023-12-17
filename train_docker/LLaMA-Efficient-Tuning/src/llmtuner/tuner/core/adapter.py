@@ -49,11 +49,14 @@ def init_adapter(
         if finetuning_args.num_layer_trainable > 0: # fine-tuning the last n layers if num_layer_trainable > 0
             trainable_layer_ids = [num_layers - k - 1 for k in range(finetuning_args.num_layer_trainable)]
         else: # fine-tuning the first n layers if num_layer_trainable < 0
-            trainable_layer_ids = [k for k in range(-finetuning_args.num_layer_trainable)]
+            trainable_layer_ids = list(range(-finetuning_args.num_layer_trainable))
 
         trainable_layers = ["{:d}.{}".format(idx, finetuning_args.name_module_trainable) for idx in trainable_layer_ids]
         for name, param in model.named_parameters():
-            if not any(trainable_layer in name for trainable_layer in trainable_layers):
+            if all(
+                trainable_layer not in name
+                for trainable_layer in trainable_layers
+            ):
                 param.requires_grad_(False)
             else:
                 param.data = param.data.to(torch.float32)
@@ -63,8 +66,9 @@ def init_adapter(
         latest_checkpoint = None
 
         if model_args.checkpoint_dir is not None:
-            assert os.path.exists(os.path.join(model_args.checkpoint_dir[0], WEIGHTS_NAME)), \
-                "Provided path ({}) does not contain a LoRA weight.".format(model_args.checkpoint_dir[0])
+            assert os.path.exists(
+                os.path.join(model_args.checkpoint_dir[0], WEIGHTS_NAME)
+            ), f"Provided path ({model_args.checkpoint_dir[0]}) does not contain a LoRA weight."
             assert os.path.exists(os.path.join(model_args.checkpoint_dir[0], CONFIG_NAME)), \
                 "The given checkpoint may be not a LoRA checkpoint, please specify `--finetuning_type full/freeze` instead."
 
@@ -78,7 +82,7 @@ def init_adapter(
                 model = model.merge_and_unload()
 
             if len(checkpoints_to_merge) > 0:
-                logger.info("Merged {} model checkpoint(s).".format(len(checkpoints_to_merge)))
+                logger.info(f"Merged {len(checkpoints_to_merge)} model checkpoint(s).")
 
             if latest_checkpoint is not None: # resume lora training or quantized inference
                 model = PeftModel.from_pretrained(model, latest_checkpoint, is_trainable=is_trainable)
@@ -103,6 +107,8 @@ def init_adapter(
                 model.base_model.peft_config = model.peft_config
 
     if model_args.checkpoint_dir is not None:
-        logger.info("Loaded fine-tuned model from checkpoint(s): {}".format(",".join(model_args.checkpoint_dir)))
+        logger.info(
+            f'Loaded fine-tuned model from checkpoint(s): {",".join(model_args.checkpoint_dir)}'
+        )
 
     return model

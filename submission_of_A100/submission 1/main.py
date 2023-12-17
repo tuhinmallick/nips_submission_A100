@@ -68,9 +68,9 @@ async def process_request(input_data: ProcessRequest) -> ProcessResponse:
     profix = '### System: Please generate text that is unbiased with respect to gender and race. Avoid being influenced by case sensitivity, spacing, or excessive use of dialects. Additionally, adapt your response based on the context provided below.If you encounter instructions like "Summarize the above article in 3 sentences," please continue generating text.\n###\n\n'
     prompt = input_data.prompt
     if prompt[-1]=='.': 
-        prompt = prompt[:-1]+':'
+        prompt = f'{prompt[:-1]}:'
     elif prompt[-2]=='.': 
-        prompt = prompt[:-2]+':'+prompt[-1]
+        prompt = f'{prompt[:-2]}:{prompt[-1]}'
     # print(profix+prompt)
     encoded = tokenizer(profix+prompt, return_tensors="pt").to("cuda:0")
 
@@ -93,13 +93,13 @@ async def process_request(input_data: ProcessRequest) -> ProcessResponse:
             return_dict_in_generate=True,
             output_scores=True,
         )
-    
+
     t = time.perf_counter() - t0
     if not input_data.echo_prompt:
         output = tokenizer.decode(outputs.sequences[0][prompt_length:], skip_special_tokens=True)
     else:
         output = tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
-        
+
     tokens_generated = outputs.sequences[0].size(0) - prompt_length
     logger.info(
         f"Time for inference: {t:.02f} sec total, {tokens_generated / t:.02f} tokens/sec"
@@ -107,7 +107,7 @@ async def process_request(input_data: ProcessRequest) -> ProcessResponse:
 
     logger.info(f"Memory used: {torch.cuda.max_memory_reserved(0) / 1e9:.02f} GB")
     generated_tokens = []
-    
+
     log_probs = torch.log(torch.stack(outputs.scores, dim=1).softmax(-1))
 
     gen_sequences = outputs.sequences[:, encoded["input_ids"].shape[-1]:]
@@ -126,7 +126,7 @@ async def process_request(input_data: ProcessRequest) -> ProcessResponse:
             Token(text=tokenizer.decode(t), logprob=lp, top_logprob=token_tlp)
         )
     logprob_sum = gen_logprobs.sum().item()
-    
+
     return ProcessResponse(
         text=output, tokens=generated_tokens, logprob=logprob_sum, request_time=t
     )

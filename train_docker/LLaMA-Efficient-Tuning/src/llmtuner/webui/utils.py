@@ -38,9 +38,11 @@ def can_preview(dataset_dir: str, dataset: list) -> Dict[str, Any]:
         dataset_info = json.load(f)
 
     if (
-        len(dataset) > 0
+        dataset
         and "file_name" in dataset_info[dataset[0]]
-        and os.path.isfile(os.path.join(dataset_dir, dataset_info[dataset[0]]["file_name"]))
+        and os.path.isfile(
+            os.path.join(dataset_dir, dataset_info[dataset[0]]["file_name"])
+        )
     ):
         return gr.update(interactive=True)
     else:
@@ -60,7 +62,7 @@ def get_preview(
         elif data_file.endswith(".jsonl"):
             data = [json.loads(line) for line in f]
         else:
-            data = [line for line in f]
+            data = list(f)
     return len(data), data[start:end], gr.update(visible=True)
 
 
@@ -75,18 +77,19 @@ def gen_cmd(args: Dict[str, Any]) -> str:
     if args.get("do_train", None):
         args["plot_loss"] = True
     cmd_lines = ["CUDA_VISIBLE_DEVICES=0 python src/train_bash.py "]
-    for k, v in args.items():
-        if v is not None and v != "":
-            cmd_lines.append("    --{} {} ".format(k, str(v)))
+    cmd_lines.extend(
+        f"    --{k} {str(v)} "
+        for k, v in args.items()
+        if v is not None and v != ""
+    )
     cmd_text = "\\\n".join(cmd_lines)
-    cmd_text = "```bash\n{}\n```".format(cmd_text)
-    return cmd_text
+    return f"```bash\n{cmd_text}\n```"
 
 
 def get_eval_results(path: os.PathLike) -> str:
     with open(path, "r", encoding="utf-8") as f:
         result = json.dumps(json.load(f), indent=4)
-    return "```json\n{}\n```\n".format(result)
+    return f"```json\n{result}\n```\n"
 
 
 def gen_plot(base_model: str, finetuning_type: str, output_dir: str) -> matplotlib.figure.Figure:
@@ -105,7 +108,7 @@ def gen_plot(base_model: str, finetuning_type: str, output_dir: str) -> matplotl
                 steps.append(log_info["current_steps"])
                 losses.append(log_info["loss"])
 
-    if len(losses) == 0:
+    if not losses:
         return None
 
     ax.plot(steps, losses, alpha=0.4, label="original")
@@ -155,5 +158,5 @@ def save_model(
     )
 
     yield ALERTS["info_exporting"][lang]
-    export_model(args, max_shard_size="{}GB".format(max_shard_size))
+    export_model(args, max_shard_size=f"{max_shard_size}GB")
     yield ALERTS["info_exported"][lang]

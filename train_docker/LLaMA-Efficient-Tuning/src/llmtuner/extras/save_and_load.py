@@ -11,7 +11,9 @@ logger = get_logger(__name__)
 def load_valuehead_params(model: torch.nn.Module, checkpoint_dir: os.PathLike) -> bool:
     vhead_file = os.path.join(checkpoint_dir, WEIGHTS_NAME)
     if not os.path.exists(vhead_file):
-        logger.warning("Provided path ({}) does not contain valuehead weights.".format(checkpoint_dir))
+        logger.warning(
+            f"Provided path ({checkpoint_dir}) does not contain valuehead weights."
+        )
         return False
     vhead_params = torch.load(vhead_file, map_location="cpu")
     model.register_buffer("reward_head_weight", vhead_params["v_head.summary.weight"], persistent=False)

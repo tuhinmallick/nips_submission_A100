@@ -86,14 +86,22 @@ def batch_inference(
     probs = torch.nn.functional.softmax(
         torch.stack(
             [
-                logits[:, -1, chat_model.tokenizer.encode(prefix_char + "A")[-1]],
-                logits[:, -1, chat_model.tokenizer.encode(prefix_char + "B")[-1]],
-                logits[:, -1, chat_model.tokenizer.encode(prefix_char + "C")[-1]],
-                logits[:, -1, chat_model.tokenizer.encode(prefix_char + "D")[-1]]
+                logits[
+                    :, -1, chat_model.tokenizer.encode(f"{prefix_char}A")[-1]
+                ],
+                logits[
+                    :, -1, chat_model.tokenizer.encode(f"{prefix_char}B")[-1]
+                ],
+                logits[
+                    :, -1, chat_model.tokenizer.encode(f"{prefix_char}C")[-1]
+                ],
+                logits[
+                    :, -1, chat_model.tokenizer.encode(f"{prefix_char}D")[-1]
+                ],
             ],
-            dim=-1
+            dim=-1,
         ),
-        dim=-1
+        dim=-1,
     ).detach()
     return [chr(ord("A") + offset.item()) for offset in torch.argmax(probs, dim=-1)]
 
@@ -177,10 +185,10 @@ def evaluate(
 
     print(score_info)
     if save_name is not None:
-        with open(save_name + ".json", "w", encoding="utf-8", newline="\n") as f:
+        with open(f"{save_name}.json", "w", encoding="utf-8", newline="\n") as f:
             json.dump(results, f, indent=2)
 
-        with open(save_name + ".log", "w", encoding="utf-8", newline="\n") as f:
+        with open(f"{save_name}.log", "w", encoding="utf-8", newline="\n") as f:
             f.write(score_info)
 
 

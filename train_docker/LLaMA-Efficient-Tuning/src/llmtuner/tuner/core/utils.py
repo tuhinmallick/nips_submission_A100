@@ -18,11 +18,11 @@ def find_all_linear_modules(
     else:
         linear_cls = torch.nn.Linear
 
-    module_names = set()
-    for name, module in model.named_modules():
-        if output_layer_name not in name and isinstance(module, linear_cls):
-            module_names.add(name.split(".")[-1])
-
+    module_names = {
+        name.split(".")[-1]
+        for name, module in model.named_modules()
+        if output_layer_name not in name and isinstance(module, linear_cls)
+    }
     if output_layer_name in module_names:
         module_names.pop(output_layer_name)
 

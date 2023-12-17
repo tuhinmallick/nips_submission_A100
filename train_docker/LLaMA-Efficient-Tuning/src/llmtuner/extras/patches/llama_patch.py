@@ -58,7 +58,9 @@ class LlamaShiftShortAttention(LlamaAttention):
         if getattr(self, "shift_ratio", None) and self.training: # shift
             group_size = int(q_len * getattr(self, "shift_ratio"))
             if q_len % group_size > 0:
-                raise ValueError("q_len {} should be divisible by group size {}.".format(q_len, group_size))
+                raise ValueError(
+                    f"q_len {q_len} should be divisible by group size {group_size}."
+                )
             num_group = q_len // group_size
             for state in (query_states, key_states, value_states):
                 state = state.transpose(1, 2) # output: (bsz, seq_len, n_heads, head_dim)
@@ -163,7 +165,9 @@ class LlamaFlashAttention2(LlamaAttention):
         if getattr(self, "shift_ratio", None) and self.training: # shift
             group_size = int(q_len * getattr(self, "shift_ratio"))
             if q_len % group_size > 0:
-                raise ValueError("q_len {} should be divisible by group size {}.".format(q_len, group_size))
+                raise ValueError(
+                    f"q_len {q_len} should be divisible by group size {group_size}."
+                )
             num_group = q_len // group_size
             for state in (query_states, key_states, value_states):
                 state[:, :, self.num_heads//2:] = state[:, :, self.num_heads//2:].roll(-group_size//2, dims=1)
